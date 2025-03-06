@@ -1,0 +1,52 @@
+﻿@page "/games/details"
+@using Microsoft.EntityFrameworkCore
+@using finalBeeit.Models
+@inject IDbContextFactory<finalBeeit.Data.finalBeeitContext> DbFactory
+@inject NavigationManager NavigationManager
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Game</h2>
+    <hr />
+    @if (game is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else {
+        <dl class="row">
+            <dt class="col-sm-2">AppId</dt>
+            <dd class="col-sm-10">@game.AppId</dd>
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@game.Name</dd>
+            <dt class="col-sm-2">LastModified</dt>
+            <dd class="col-sm-10">@game.LastModified</dd>
+            <dt class="col-sm-2">PriceChangeNumber</dt>
+            <dd class="col-sm-10">@game.PriceChangeNumber</dd>
+        </dl>
+        <div>
+            <a href="@($"/games/edit?id={game.Id}")">Edit</a> |
+            <a href="@($"/games")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code {
+    private Game? game;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        using var context = DbFactory.CreateDbContext();
+        game = await context.Game.FirstOrDefaultAsync(m => m.Id == Id);
+
+        if (game is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}

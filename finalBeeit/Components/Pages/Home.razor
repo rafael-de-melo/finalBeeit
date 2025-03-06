@@ -1,0 +1,42 @@
+﻿@page "/"
+
+<PageTitle>Home</PageTitle>
+
+<h1>Steam Game Search</h1>
+
+<div class="search-container">
+    <input type="text"
+           @bind="searchTerm"
+           @bind:event="oninput"
+           placeholder="Search for a game..."
+           class="form-control mb-3" />
+</div>
+
+@if (games == null)
+{
+    <p>Loading...</p>
+}
+else if (!games.Any())
+{
+    <p>No games found.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>App ID</th>
+                <th>Game Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in games)
+            {
+                <tr>
+                    <td>@game.AppId</td>
+                    <td>@game.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
