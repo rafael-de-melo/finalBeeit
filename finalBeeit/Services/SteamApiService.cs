@@ -1,4 +1,6 @@
 ﻿using finalBeeit.Models;
+using System.Net.Http;
+using System.Security.Policy;
 using System.Text.Json;
 
 namespace finalBeeit.Services
@@ -13,28 +15,30 @@ namespace finalBeeit.Services
 
         async Task<List<Game>> ISteamApiService.SearchGameByName(string name)
         {
-            string apiUrl = "http://api.steampowered.com/ISteamApps/GetAppList/v0002/?format=json";
-            var response = await httpClient.GetAsync(apiUrl);
+            string apiUrl = "https://api.steampowered.com/IStoreService/GetAppList/v1/?key=D4AB96630D5227A3D7AFA3C1D9465919&have_description_language=portuguese&max_results=50000";
+            try
+            {
+                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var response = await httpClient.GetFromJsonAsync<SteamAppListResponse>(apiUrl, options);
 
-            // If the response is not successful, return an empty list
-            if (!response.IsSuccessStatusCode)
+                if (response?.Response?.Apps == null)
+                {
+                    return new List<Game>();
+                }
+
+                // Remove API-level filtering; return full list
+                return response.Response.Apps
+                    .Select(app => new Game
+                    {
+                        AppId = app.Appid,
+                        Name = app.Name
+                    })
+                    .ToList();
+            }
+            catch (Exception ex)
             {
                 return new List<Game>();
             }
-
-            var json = await response.Content.ReadAsStringAsync();
-            var data = JsonSerializer.Deserialize<SteamAppListResponse>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-            var filteredGames = data?.Applist.Apps
-                .Where(game => game.Name.Contains(name, StringComparison.OrdinalIgnoreCase))
-                .Select(game => new Game
-                {
-                    AppId = game.AppId,
-                    Name = game.Name
-                })
-                .ToList();
-
-            return filteredGames ?? new List<Game>();
         }
     }
 }

@@ -1,11 +1,6 @@
 ﻿@page "/games"
 @rendermode InteractiveServer
-@using Microsoft.EntityFrameworkCore
 @using Microsoft.AspNetCore.Components.QuickGrid
-@using finalBeeit.Models
-@using finalBeeit.Data
-@implements IAsyncDisposable
-@inject IDbContextFactory<finalBeeit.Data.finalBeeitContext> DbFactory
 
 <PageTitle>Index</PageTitle>
 
@@ -13,18 +8,11 @@
 
 <input type="search" @bind="titleFilter" @bind:event="oninput" />
 
-<p>
-    <a href="games/create">Create New</a>
-</p>
-
 <QuickGrid Class="table" Items="FilteredGames" Pagination="pagination">
     <PropertyColumn Property="game => game.AppId" />
     <PropertyColumn Property="game => game.Name" Sortable="true" />
-    <PropertyColumn Property="game => game.LastModified" />
-    <PropertyColumn Property="game => game.PriceChangeNumber" />
 
     <TemplateColumn Context="game">
-        <a href="@($"games/edit?id={game.Id}")">Edit</a> |
         <a href="@($"games/details?id={game.Id}")">Details</a> |
         <a href="@($"games/delete?id={game.Id}")">Delete</a>
     </TemplateColumn>

@@ -1,42 +1,44 @@
 ﻿@page "/"
+@using finalBeeit.Models
+@rendermode InteractiveServer
 
 <PageTitle>Home</PageTitle>
 
 <h1>Steam Game Search</h1>
 
-<div class="search-container">
-    <input type="text"
-           @bind="searchTerm"
-           @bind:event="oninput"
-           placeholder="Search for a game..."
-           class="form-control mb-3" />
-</div>
+<input type="search" @bind="titleFilter" @bind:event="oninput" @bind:after="OnTitleFilterChanged" />
 
 @if (games == null)
 {
     <p>Loading...</p>
 }
-else if (!games.Any())
-{
-    <p>No games found.</p>
-}
 else
 {
-    <table class="table table-striped">
+    <table class="table">
         <thead>
             <tr>
                 <th>App ID</th>
-                <th>Game Name</th>
+                <th>Name</th>
+                <th></th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var game in games)
+            @foreach (var game in PaginatedGames)
             {
                 <tr>
                     <td>@game.AppId</td>
                     <td>@game.Name</td>
+                    <td>
+                        <button @onclick="() => AddGameToDb(game)">Adicionar</button>
+                    </td>
                 </tr>
             }
         </tbody>
     </table>
+
+    <div>
+        <button @onclick="PreviousPage" >Previous</button>
+        <span>Page @currentPage of @TotalPages</span>
+        <button @onclick="NextPage" >Next</button>
+    </div>
 }
