@@ -24,26 +24,34 @@ namespace finalBeeit.Components.Pages
         private string notificationMessage = string.Empty;
         private bool isSuccess = false;
 
+        //listas com filtros e paginaçao
+        //atualiza a lista de jogos que contem o input de titleFilter, se titleFilter for null, exibe a lista completa
         private IEnumerable<Game> FilteredGames =>
             (games ?? new List<Game>())
             .Where(g => string.IsNullOrEmpty(titleFilter) ||
                        g.Name.Contains(titleFilter, StringComparison.OrdinalIgnoreCase));
+
+        // usa FilteredGames e exibe apenas 50 jogos delimitados por .Skip e .Take
         private IEnumerable<Game> PaginatedGames =>
             FilteredGames
                 .Skip((currentPage - 1) * ItemsPerPage)
                 .Take(ItemsPerPage);
 
 
+        //conecta a database na inicializaçao
         protected override void OnInitialized()
         {
             context = DbFactory.CreateDbContext();
         }
+
+        //Fetching data asynchronously (like an API call) can’t happen in the synchronous OnInitialized, so it’s done here.
+        //popula games na inicializaçao para que FilteredGames e PaginatedGames tenham o que trabalhar
         protected override async Task OnInitializedAsync()
         {
-            // Fetch full list once on initialization
-            games = await SteamApiService.SearchGameByName(string.Empty);
+            games = await SteamApiService.GetAppList();
         }
 
+        //Tears down the database context when the component is no longer needed.
         public async ValueTask DisposeAsync()
         {
             if (context != null)

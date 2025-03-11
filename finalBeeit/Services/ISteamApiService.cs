@@ -4,6 +4,6 @@ namespace finalBeeit.Services
 {
     public interface ISteamApiService
     {
-        public Task<List<Game>> SearchGameByName(string name);
+        public Task<List<Game>> GetAppList();
     }
 }
