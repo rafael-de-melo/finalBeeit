@@ -8,6 +8,13 @@
 
 <input type="search" @bind="titleFilter" @bind:event="oninput" @bind:after="OnTitleFilterChanged" />
 
+@if (!string.IsNullOrEmpty(notificationMessage))
+{
+    <div class="@(isSuccess ? "alert alert-success" : "alert alert-danger")" role="alert">
+        @notificationMessage
+    </div>
+}
+
 @if (games == null)
 {
     <p>Loading...</p>

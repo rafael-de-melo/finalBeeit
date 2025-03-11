@@ -12,23 +12,27 @@ namespace finalBeeit.Components.Pages
         [Inject] private IDbContextFactory<finalBeeitContext> DbFactory { get; set; }
 
         private List<Game>? games;
+        private finalBeeitContext context = default!;
+
+        // variaveis paginaçao
         private string titleFilter = string.Empty;
         private int currentPage = 1;
         private const int ItemsPerPage = 50;
+        private int TotalPages => (int)Math.Ceiling((double)FilteredGames.Count() / ItemsPerPage);
 
-        private finalBeeitContext context = default!;
+        // variaveis notificação sucesso/falha
+        private string notificationMessage = string.Empty;
+        private bool isSuccess = false;
 
         private IEnumerable<Game> FilteredGames =>
             (games ?? new List<Game>())
             .Where(g => string.IsNullOrEmpty(titleFilter) ||
                        g.Name.Contains(titleFilter, StringComparison.OrdinalIgnoreCase));
-
         private IEnumerable<Game> PaginatedGames =>
             FilteredGames
                 .Skip((currentPage - 1) * ItemsPerPage)
                 .Take(ItemsPerPage);
 
-        private int TotalPages => (int)Math.Ceiling((double)FilteredGames.Count() / ItemsPerPage);
 
         protected override void OnInitialized()
         {
@@ -50,13 +54,29 @@ namespace finalBeeit.Components.Pages
 
         private async Task AddGameToDb(Game game)
         {
-            if (!await context.Game.AnyAsync(g => g.AppId == game.AppId))
+            try
             {
-                game.LastModified = DateTime.UtcNow;
-                game.PriceChangeNumber = 0;         
+                if (!await context.Game.AnyAsync(g => g.AppId == game.AppId))
+                {
+                    game.LastModified = DateTime.UtcNow;
+                    game.PriceChangeNumber = 0;
 
-                context.Game.Add(game);
-                await context.SaveChangesAsync();
+                    context.Game.Add(game);
+                    await context.SaveChangesAsync();
+
+                    notificationMessage = $"Jogo '{game.Name}' adicionado com sucesso";
+                    isSuccess = true;
+                }
+                else
+                {
+                    notificationMessage = $"O jogo '{game.Name}' já está no banco de dados";
+                    isSuccess = false;
+                }
+            }
+            catch (Exception ex)
+            {
+                notificationMessage = $"Erro ao adicionar '{game.Name}': {ex.Message}";
+                isSuccess = false;
             }
         }
 
