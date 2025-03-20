@@ -1,3 +1,5 @@
+hosted: https://rafael-de-melo-github-io.onrender.com
+
 Projeto final apresentado no treinamento BeeIT.
 
 Consiste em um aplicativo WEB, onde na página inicial é exibido uma tabela paginada que exibe a lista de aplicativos recebidas da SteamAPI, com a opção de adicionar jogos ao banco de dados.
