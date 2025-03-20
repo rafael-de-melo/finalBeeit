@@ -6,18 +6,18 @@ EXPOSE 80
 # Step 2: Use the SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["BlazorApp/BlazorApp.csproj", "BlazorApp/"]
-RUN dotnet restore "BlazorApp/BlazorApp.csproj"
+COPY ["finalBeeit/finalBeeit.csproj", "finalBeeit/"]
+RUN dotnet restore "finalBeeit/finalBeeit.csproj"
 COPY . .
-WORKDIR "/src/BlazorApp"
-RUN dotnet build "BlazorApp.csproj" -c Release -o /app/build
+WORKDIR "/src/finalBeeit"
+RUN dotnet build "finalBeeit.csproj" -c Release -o /app/build
 
 # Step 3: Publish the app
 FROM build AS publish
-RUN dotnet publish "BlazorApp.csproj" -c Release -o /app/publish
+RUN dotnet publish "finalBeeit.csproj" -c Release -o /app/publish
 
 # Step 4: Use the base image and copy the published files
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "BlazorApp.dll"]
+ENTRYPOINT ["dotnet", "finalBeeit.dll"]
